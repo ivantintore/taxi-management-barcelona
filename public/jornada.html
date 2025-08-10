@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Jornada - Taxi BCN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .back-btn:hover {
+            background: #2980b9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input[type="date"], input[type="time"], input[type="number"] {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .descanso-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .descanso-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .horas-display {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .horas-display.invalid {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .signature-pad {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+
+        .signature-controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .legal-text {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #fadbd8;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">← Volver</button>
+            <h1>📅 Registro de Jornada Laboral</h1>
+            <p id="userInfo">Cargando información del usuario...</p>
+        </div>
+
+        <div class="content">
+            <div id="message" class="hidden"></div>
+
+            <form id="jornadaForm" onsubmit="handleSubmit(event)">
+                <!-- Información básica -->
+                <div class="form-section">
+                    <h3>📋 Información de la Jornada</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" id="fecha" name="fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Licencia</label>
+                            <input type="text" id="licencia" readonly style="background: #f8f9fa;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horarios -->
+                <div class="form-section">
+                    <h3>⏰ Horarios de Trabajo</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="inicio_jornada">Inicio de la jornada</label>
+                            <input type="time" id="inicio_jornada" name="inicio_jornada" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fin_jornada">Fin de la jornada</label>
+                            <input type="time" id="fin_jornada" name="fin_jornada" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descansos -->
+                <div class="form-section">
+                    <h3>☕ Descansos</h3>
+                    <div id="descansosContainer">
+                        <!-- Los descansos se añaden dinámicamente -->
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addDescanso()">
+                        + Añadir Descanso
+                    </button>
+                </div>
+
+                <!-- Horas calculadas -->
+                <div class="form-section">
+                    <h3>📊 Horas Trabajadas</h3>
+                    <div id="horasDisplay" class="horas-display">
+                        Horas efectivas: <span id="horasEfectivas">0h 0m</span>
+                    </div>
+                    <div class="legal-text">
+                        ⚠️ <strong>Importante:</strong> La jornada efectiva no puede superar las 8 horas según la legislación laboral española (art. 25 del convenio vigente).
+                    </div>
+                </div>
+
+                <!-- Firma digital -->
+                <div class="form-section">
+                    <h3>✍️ Firma Digital</h3>
+                    <div class="legal-text">
+                        <strong>Declaración:</strong><br>
+                        Durante el día de hoy he respetado los descansos según la formación recibida (PRL).<br>
+                        Soy conocedor que la empresa no autoriza horas extraordinarias (en base a la Sentencia 144/2019 de fecha 10/12/2019).<br>
+                        Se le recuerda al trabajador que ha de consignar el horario <strong>real</strong> y no el horario teórico basado en los turnos de recogida y devolución del vehículo.<br>
+                        Durante el intervalo entre la recogida y la devolución debo efectuar 8 horas de trabajo efectivo y respetar los descansos.
+                    </div>
+                    <canvas id="signaturePad" class="signature-pad" width="400" height="200"></canvas>
+                    <div class="signature-controls">
+                        <button type="button" class="btn btn-danger" onclick="clearSignature()">
+                            🗑️ Borrar Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="button" class="btn btn-danger" onclick="goBack()" style="margin-right: 20px;">
+                        ❌ Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        ✅ Guardar Jornada
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let signaturePad = null;
+        let descansosCount = 0;
+
+        // Inicializar página
+        window.onload = async function() {
+            await checkAuth();
+            initSignaturePad();
+            setDefaultDate();
+            setupEventListeners();
+        };
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (!response.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const data = await response.json();
+                currentUser = data.user;
+                document.getElementById('userInfo').textContent = 
+                    `${currentUser.nombre} - Licencia ${currentUser.licencia}`;
+                document.getElementById('licencia').value = currentUser.licencia;
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        function initSignaturePad() {
+            const canvas = document.getElementById('signaturePad');
+            const ctx = canvas.getContext('2d');
+            
+            let drawing = false;
+            let hasSignature = false;
+
+            function startDrawing(e) {
+                drawing = true;
+                hasSignature = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+
+            function draw(e) {
+                if (!drawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+
+            function stopDrawing() {
+                drawing = false;
+            }
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+
+            // Touch events
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+
+            signaturePad = { canvas, ctx, hasSignature: () => hasSignature };
+        }
+
+        function clearSignature() {
+            const canvas = document.getElementById('signaturePad');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('inicio_jornada').addEventListener('change', calculateHours);
+            document.getElementById('fin_jornada').addEventListener('change', calculateHours);
+        }
+
+        function addDescanso() {
+            descansosCount++;
+            const container = document.getElementById('descansosContainer');
+            
+            const descansoDiv = document.createElement('div');
+            descansoDiv.className = 'descanso-item';
+            descansoDiv.id = `descanso-${descansosCount}`;
+            
+            descansoDiv.innerHTML = `
+                <div class="descanso-header">
+                    <h4>Descanso ${descansosCount}</h4>
+                    <button type="button" class="btn btn-danger" onclick="removeDescanso(${descansosCount})">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Inicio descanso</label>
+                        <input type="time" name="inicio_descanso_${descansosCount}" onchange="calculateHours()" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fin descanso</label>
+                        <input type="time" name="fin_descanso_${descansosCount}" onchange="calculateHours()" required>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(descansoDiv);
+        }
+
+        function removeDescanso(id) {
+            const descanso = document.getElementById(`descanso-${id}`);
+            if (descanso) {
+                descanso.remove();
+                calculateHours();
+            }
+        }
+
+        function calculateHours() {
+            const inicio = document.getElementById('inicio_jornada').value;
+            const fin = document.getElementById('fin_jornada').value;
+            
+            if (!inicio || !fin) return;
+
+            // Calcular horas totales
+            const inicioDate = new Date(`2000-01-01T${inicio}:00`);
+            let finDate = new Date(`2000-01-01T${fin}:00`);
+            
+            // Si fin es menor que inicio, asumimos que pasa a día siguiente
+            if (finDate < inicioDate) {
+                finDate.setDate(finDate.getDate() + 1);
+            }
+            
+            let totalMinutos = (finDate - inicioDate) / (1000 * 60);
+
+            // Restar descansos
+            const descansos = document.querySelectorAll('.descanso-item');
+            descansos.forEach(descanso => {
+                const inicioDescanso = descanso.querySelector('input[name^="inicio_descanso"]').value;
+                const finDescanso = descanso.querySelector('input[name^="fin_descanso"]').value;
+                
+                if (inicioDescanso && finDescanso) {
+                    const inicioDescDate = new Date(`2000-01-01T${inicioDescanso}:00`);
+                    const finDescDate = new Date(`2000-01-01T${finDescanso}:00`);
+                    const minutosDescanso = (finDescDate - inicioDescDate) / (1000 * 60);
+                    totalMinutos -= minutosDescanso;
+                }
+            });
+
+            const horas = Math.floor(totalMinutos / 60);
+            const minutos = Math.round(totalMinutos % 60);
+            
+            const horasDisplay = document.getElementById('horasDisplay');
+            const horasEfectivas = document.getElementById('horasEfectivas');
+            
+            horasEfectivas.textContent = `${horas}h ${minutos}m`;
+            
+            // Validar límite de 8 horas
+            if (horas > 8 || (horas === 8 && minutos > 0)) {
+                horasDisplay.classList.add('invalid');
+                horasEfectivas.textContent += ' ⚠️ EXCEDE 8 HORAS';
+            } else {
+                horasDisplay.classList.remove('invalid');
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const horasDisplay = document.getElementById('horasDisplay');
+            if (horasDisplay.classList.contains('invalid')) {
+                showMessage('No se puede guardar: la jornada efectiva excede las 8 horas permitidas.', 'error');
+                return;
+            }
+
+            if (!signaturePad.hasSignature()) {
+                showMessage('Por favor, firme el registro antes de guardar.', 'error');
+                return;
+            }
+
+            const formData = new FormData(event.target);
+            
+            // Recopilar descansos
+            const descansos = [];
+            const descansoItems = document.querySelectorAll('.descanso-item');
+            descansoItems.forEach((item, index) => {
+                const inicio = item.querySelector('input[name^="inicio_descanso"]').value;
+                const fin = item.querySelector('input[name^="fin_descanso"]').value;
+                if (inicio && fin) {
+                    descansos.push({ inicio, fin });
+                }
+            });
+
+            // Obtener firma como base64
+            const firmaCanvas = document.getElementById('signaturePad');
+            const firmaData = firmaCanvas.toDataURL();
+
+            // Calcular horas efectivas
+            const horasText = document.getElementById('horasEfectivas').textContent;
+            const horasMatch = horasText.match(/(\d+)h (\d+)m/);
+            const horasEfectivasDecimal = horasMatch ? 
+                parseFloat(horasMatch[1]) + parseFloat(horasMatch[2]) / 60 : 0;
+
+            const jornadaData = {
+                fecha: formData.get('fecha'),
+                inicio_jornada: formData.get('inicio_jornada'),
+                fin_jornada: formData.get('fin_jornada'),
+                descansos: descansos,
+                horas_efectivas: horasEfectivasDecimal,
+                firma_digital: firmaData
+            };
+
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Guardando...';
+
+                const response = await fetch('/api/jornada', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jornadaData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('✅ Jornada guardada correctamente', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showMessage(result.error || 'Error al guardar la jornada', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo de nuevo.', 'error');
+            } finally {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Guardar Jornada';
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
