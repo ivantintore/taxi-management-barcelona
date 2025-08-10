@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquidación Diaria - Taxi BCN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .back-btn:hover {
+            background: #2980b9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input[type="date"], 
+        input[type="number"], 
+        input[type="text"],
+        select,
+        textarea {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .readonly {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .summary-section {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .summary-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #fadbd8;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .currency::before {
+            content: "€ ";
+            color: #666;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">← Volver</button>
+            <h1>💰 Liquidación Diaria</h1>
+            <p id="userInfo">Cargando información del usuario...</p>
+        </div>
+
+        <div class="content">
+            <div id="message" class="hidden"></div>
+
+            <form id="liquidacionForm" onsubmit="handleSubmit(event)">
+                
+                <!-- Información básica -->
+                <div class="form-section">
+                    <h3>📋 Información General</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" id="fecha" name="fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="licencia">Licencia</label>
+                            <input type="text" id="licencia" name="licencia" readonly class="readonly">
+                        </div>
+                        <div class="form-group">
+                            <label for="empresa">Empresa</label>
+                            <input type="text" id="empresa" name="empresa" value="PROVETAXI" readonly class="readonly">
+                        </div>
+                        <div class="form-group">
+                            <label for="turno_realizado">Turno Realizado</label>
+                            <select id="turno_realizado" name="turno_realizado" required>
+                                <option value="">Seleccionar turno</option>
+                                <option value="Mañana">Mañana</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Noche">Noche</option>
+                                <option value="24h">24 horas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos del servicio -->
+                <div class="form-section">
+                    <h3>🚕 Datos del Servicio</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="num_cierre">Nº de cierre</label>
+                            <input type="number" id="num_cierre" name="num_cierre" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="carreras">Carreras (€)</label>
+                            <input type="number" id="carreras" name="carreras" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="kilometros">Kilómetros</label>
+                            <input type="number" id="kilometros" name="kilometros" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="num_tickets">Nº de tickets</label>
+                            <input type="number" id="num_tickets" name="num_tickets" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="prima">Prima</label>
+                            <select id="prima" name="prima">
+                                <option value="Básica">Básica</option>
+                                <option value="Especial">Especial</option>
+                                <option value="Festivo">Festivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingresos -->
+                <div class="form-section">
+                    <h3>💶 Ingresos</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="recaudacion">Recaudación (€)</label>
+                            <input type="number" id="recaudacion" name="recaudacion" min="0" step="0.01" onchange="calculateTotals()" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="servicios_internos">Servicios Internos (€)</label>
+                            <input type="number" id="servicios_internos" name="servicios_internos" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="peajes_incidencias">Peajes/Incidencias (€)</label>
+                            <input type="number" id="peajes_incidencias" name="peajes_incidencias" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="visas">Visas (€)</label>
+                            <input type="number" id="visas" name="visas" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="abonados">Abonados (€)</label>
+                            <input type="number" id="abonados" name="abonados" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gastos -->
+                <div class="form-section">
+                    <h3>💸 Gastos</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="combustible">Combustible (€)</label>
+                            <input type="number" id="combustible" name="combustible" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="gas">Gas (€)</label>
+                            <input type="number" id="gas" name="gas" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="otros_gastos">Otros Gastos (€)</label>
+                            <input type="number" id="otros_gastos" name="otros_gastos" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="regulacion_salarial">Regulación Salarial (€)</label>
+                            <input type="number" id="regulacion_salarial" name="regulacion_salarial" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="embargo">Embargo (€)</label>
+                            <input type="number" id="embargo" name="embargo" min="0" step="0.01" onchange="calculateTotals()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liquidación final -->
+                <div class="form-section">
+                    <h3>🧮 Liquidación Final</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="entregar_empresa">Entregar a Empresa (€)</label>
+                            <input type="number" id="entregar_empresa" name="entregar_empresa" min="0" step="0.01" readonly class="readonly">
+                        </div>
+                        <div class="form-group">
+                            <label for="conductor">Para Conductor (€)</label>
+                            <input type="number" id="conductor" name="conductor" min="0" step="0.01" readonly class="readonly">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" placeholder="Añade cualquier observación relevante..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Resumen -->
+                <div class="summary-section">
+                    <h3>📊 Resumen de la Liquidación</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="label">Total Ingresos</div>
+                            <div class="value currency" id="totalIngresos">0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">Total Gastos</div>
+                            <div class="value currency" id="totalGastos">0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">Beneficio Bruto</div>
+                            <div class="value currency" id="beneficioBruto">0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">% Conductor</div>
+                            <div class="value" id="porcentajeConductor">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información importante -->
+                <div class="alert alert-info">
+                    <strong>📌 Recordatorio:</strong><br>
+                    • Los datos introducidos deben coincidir con los tickets y cierres del taxímetro<br>
+                    • Conserva todos los justificantes de gastos<br>
+                    • La liquidación se calculará automáticamente según tu contrato
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="actions">
+                    <button type="button" class="btn btn-danger" onclick="goBack()" style="margin-right: 20px;">
+                        ❌ Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="resetForm()" style="margin-right: 20px;">
+                        🔄 Limpiar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        ✅ Guardar Liquidación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let tarifasConductor = {
+            '361': { base: 40, especial: 45, limite: 300 }, // Raul Maraver
+            '1061': { base: 45, especial: 45, limite: 0 },   // Ivan Alsina
+            '092': { base: 40, especial: 45, limite: 300 }    // Salvador Carmona
+        };
+
+        // Inicializar página
+        window.onload = async function() {
+            await checkAuth();
+            setDefaultDate();
+            setupEventListeners();
+            calculateTotals();
+        };
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (!response.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const data = await response.json();
+                currentUser = data.user;
+                document.getElementById('userInfo').textContent = 
+                    `${currentUser.nombre} - Licencia ${currentUser.licencia}`;
+                document.getElementById('licencia').value = currentUser.licencia;
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+        }
+
+        function setupEventListeners() {
+            // Añadir listeners a todos los campos numéricos
+            const numericFields = [
+                'carreras', 'recaudacion', 'servicios_internos', 'peajes_incidencias',
+                'visas', 'abonados', 'combustible', 'gas', 'otros_gastos',
+                'regulacion_salarial', 'embargo'
+            ];
+
+            numericFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', calculateTotals);
+                }
+            });
+        }
+
+        function calculateTotals() {
+            // Obtener todos los valores
+            const recaudacion = parseFloat(document.getElementById('recaudacion').value) || 0;
+            const serviciosInternos = parseFloat(document.getElementById('servicios_internos').value) || 0;
+            const peajes = parseFloat(document.getElementById('peajes_incidencias').value) || 0;
+            const visas = parseFloat(document.getElementById('visas').value) || 0;
+            const abonados = parseFloat(document.getElementById('abonados').value) || 0;
+
+            const combustible = parseFloat(document.getElementById('combustible').value) || 0;
+            const gas = parseFloat(document.getElementById('gas').value) || 0;
+            const otrosGastos = parseFloat(document.getElementById('otros_gastos').value) || 0;
+            const regulacionSalarial = parseFloat(document.getElementById('regulacion_salarial').value) || 0;
+            const embargo = parseFloat(document.getElementById('embargo').value) || 0;
+
+            // Calcular totales
+            const totalIngresos = recaudacion + serviciosInternos + peajes + visas + abonados;
+            const totalGastos = combustible + gas + otrosGastos + regulacionSalarial + embargo;
+            const beneficioBruto = totalIngresos - totalGastos;
+
+            // Actualizar resumen
+            document.getElementById('totalIngresos').textContent = totalIngresos.toFixed(2);
+            document.getElementById('totalGastos').textContent = totalGastos.toFixed(2);
+            document.getElementById('beneficioBruto').textContent = beneficioBruto.toFixed(2);
+
+            // Calcular porcentaje del conductor según licencia
+            if (currentUser && currentUser.licencia) {
+                const tarifa = tarifasConductor[currentUser.licencia];
+                if (tarifa) {
+                    let porcentaje = tarifa.base;
+                    
+                    // Para licencias 361 y 092: si supera 300€ pasa al 45%
+                    if ((currentUser.licencia === '361' || currentUser.licencia === '092') && 
+                        recaudacion >= tarifa.limite) {
+                        porcentaje = tarifa.especial;
+                    }
+
+                    const importeConductor = (beneficioBruto * porcentaje) / 100;
+                    const importeEmpresa = beneficioBruto - importeConductor;
+
+                    document.getElementById('porcentajeConductor').textContent = `${porcentaje}%`;
+                    document.getElementById('conductor').value = Math.max(0, importeConductor).toFixed(2);
+                    document.getElementById('entregar_empresa').value = Math.max(0, importeEmpresa).toFixed(2);
+                }
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const liquidacionData = {};
+            
+            // Convertir FormData a objeto
+            for (let [key, value] of formData.entries()) {
+                liquidacionData[key] = value;
+            }
+
+            // Validaciones básicas
+            if (!liquidacionData.fecha || !liquidacionData.turno_realizado || !liquidacionData.num_cierre) {
+                showMessage('Por favor, completa todos los campos obligatorios.', 'error');
+                return;
+            }
+
+            if (parseFloat(liquidacionData.recaudacion) <= 0) {
+                showMessage('La recaudación debe ser mayor a 0.', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Guardando...';
+
+                const response = await fetch('/api/liquidacion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(liquidacionData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('✅ Liquidación guardada correctamente', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showMessage(result.error || 'Error al guardar la liquidación', 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión. Inténtalo de nuevo.', 'error');
+            } finally {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Guardar Liquidación';
+            }
+        }
+
+        function resetForm() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los datos?')) {
+                document.getElementById('liquidacionForm').reset();
+                setDefaultDate();
+                document.getElementById('licencia').value = currentUser.licencia;
+                calculateTotals();
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
